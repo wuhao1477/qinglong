@@ -24,8 +24,8 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.GITLAB_SSH_PK }}
         with:
-          source-repo: https://github.com/whyour/qinglong.git
-          destination-repo: git@gitlab.com:whyour/qinglong.git
+          source-repo: https://github.com/wuhao1477/qinglong.git
+          destination-repo: git@gitlab.com:wuhao1477/qinglong.git
 
   code_gitee:
     runs-on: ubuntu-latest
@@ -37,8 +37,8 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.GITLAB_SSH_PK }}
         with:
-          source-repo: https://github.com/whyour/qinglong.git
-          destination-repo: git@gitee.com:whyour/qinglong.git
+          source-repo: https://github.com/wuhao1477/qinglong.git
+          destination-repo: git@gitee.com:wuhao1477/qinglong.git
 
   build-static:
     runs-on: ubuntu-latest
@@ -62,8 +62,8 @@ jobs:
         env:
           GITHUB_REPO: github.com/${{ github.repository_owner }}/qinglong-static
           GITHUB_BRANCH: ${{ github.ref_name }}
-          REPO_GITEE: git@gitee.com:whyour/qinglong-static.git
-          REPO_GITLAB: git@gitlab.com:whyour/qinglong-static.git
+          REPO_GITEE: git@gitee.com:wuhao1477/qinglong-static.git
+          REPO_GITLAB: git@gitlab.com:wuhao1477/qinglong-static.git
           PRIVATE_KEY: ${{ secrets.GITLAB_SSH_PK }}
         run: |
           mkdir -p tmp
@@ -86,8 +86,8 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.GITLAB_SSH_PK }}
         with:
-          source-repo: https://github.com/whyour/qinglong-static.git
-          destination-repo: git@gitlab.com:whyour/qinglong-static.git
+          source-repo: https://github.com/wuhao1477/qinglong-static.git
+          destination-repo: git@gitlab.com:wuhao1477/qinglong-static.git
 
   static_gitee:
     needs: build-static
@@ -100,8 +100,8 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.GITLAB_SSH_PK }}
         with:
-          source-repo: https://github.com/whyour/qinglong-static.git
-          destination-repo: git@gitee.com:whyour/qinglong-static.git
+          source-repo: https://github.com/wuhao1477/qinglong-static.git
+          destination-repo: git@gitee.com:wuhao1477/qinglong-static.git
 
   build:
     needs: build-static
@@ -182,8 +182,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=whyour/qinglong:cache
-          cache-to: type=registry,ref=whyour/qinglong:cache,mode=max
+          cache-from: type=registry,ref=wuhao1477/qinglong:cache
+          cache-to: type=registry,ref=wuhao1477/qinglong:cache,mode=max
 
       - name: Image digest
         run: |
@@ -246,9 +246,9 @@ jobs:
           context: .
           file: ./docker/310.Dockerfile
           push: true
-          tags: whyour/qinglong:python3.10
-          cache-from: type=registry,ref=whyour/qinglong:cache-python3.10
-          cache-to: type=registry,ref=whyour/qinglong:cache-python3.10,mode=max
+          tags: wuhao1477/qinglong:python3.10
+          cache-from: type=registry,ref=wuhao1477/qinglong:cache-python3.10
+          cache-to: type=registry,ref=wuhao1477/qinglong:cache-python3.10,mode=max
 
       - name: Image digest
         run: |

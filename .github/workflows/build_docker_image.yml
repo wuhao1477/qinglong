@@ -14,7 +14,41 @@ on:
   workflow_dispatch:
 
 jobs:
+  build-static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: "8.3.1"
 
+      - uses: actions/setup-node@v4
+        with:
+          cache: "pnpm"
+
+      - name: build front and back
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build:front
+          pnpm build:back
+
+      - name: copy to static repo
+        env:
+          GITHUB_REPO: github.com/${{ github.repository_owner }}/qinglong-static
+          GITHUB_BRANCH: ${{ github.ref_name }}
+          REPO_GITEE: git@gitee.com:wuhao1477/qinglong-static.git
+          REPO_GITLAB: git@gitlab.com:wuhao1477/qinglong-static.git
+          PRIVATE_KEY: ${{ secrets.GITLAB_SSH_PK }}
+        run: |
+          mkdir -p tmp
+          cd ./tmp
+          cp -rf ../static/* ./
+          git init -b ${GITHUB_BRANCH} && git add .
+          git config --local user.name 'github-actions[bot]'
+          git config --local user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit --allow-empty -m "copy static at $(date +'%Y-%m-%d %H:%M:%S')"
+          git push --force --quiet "https://${{ secrets.API_TOKEN }}@${GITHUB_REPO}.git" ${GITHUB_BRANCH}:${GITHUB_BRANCH}
+  
   build:
     needs: build-static
 

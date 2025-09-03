@@ -24,6 +24,8 @@ import pickBy from 'lodash/pickBy';
 import omit from 'lodash/omit';
 import { writeFileWithLock } from '../shared/utils';
 import { ScheduleType } from '../interface/schedule';
+import NotificationService from './notify';
+import { NotificationInfo, NotificationMode } from '../data/notify';
 
 @Service()
 export default class CronService {
@@ -477,6 +479,7 @@ export default class CronService {
         );
 
         let { id, command, log_path } = cron;
+        const startTime = dayjs(); // 记录开始时间
         const uniqPath = await getUniqPath(command, `${id}`);
         const logTime = dayjs().format('YYYY-MM-DD-HH-mm-ss-SSS');
         const logDirPath = path.resolve(config.logPath, `${uniqPath}`);
@@ -523,6 +526,31 @@ export default class CronService {
             JSON.stringify(params),
             code,
           );
+
+          // 新增：任务完成通知 - 在原有逻辑之前添加
+          const endTime = dayjs();
+          const duration = endTime.diff(startTime, 'seconds');
+          
+          const taskInfo = {
+            taskId: id,
+            taskName: cron.name || '未命名任务',
+            command: cron.command,
+            exitCode: code,
+            duration: duration,
+            startTime: startTime.format('YYYY-MM-DD HH:mm:ss'),
+            endTime: endTime.format('YYYY-MM-DD HH:mm:ss'),
+            status: code === 0 ? 'success' : 'failed',
+            timestamp: endTime.toISOString(),
+          };
+          
+          new NotificationService().notify(
+            `任务${code === 0 ? '执行完成' : '执行失败'}`,
+            JSON.stringify({eventType: 'task.complete', taskInfo}),
+            {
+              type: NotificationMode.webhook,
+            } as NotificationInfo
+          );
+
           await CrontabModel.update(
             { status: CrontabStatus.idle, pid: undefined },
             { where: { id } },
